@@ -12,6 +12,7 @@ import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -22,7 +23,10 @@ import com.teamtreehouse.musicmachine.models.Song;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    public static final String EXTRA_FAVORITE = "EXTRA_FAVORITE";
+    public static final String EXTRA_TITLE="EXTRA_TITLE";
     public static final String KEY_SONG = "song";
+    private static final int REQUEST_FAVORITE = 0;
 
     private boolean mBound = false;
     private Button mDownloadButton;
@@ -99,7 +103,29 @@ public class MainActivity extends AppCompatActivity {
     private void testIntents() {
         // Explicit intent
         Intent intent = new Intent(this,DetailActivity.class);
-        startActivity(intent);
+        intent.putExtra(EXTRA_TITLE,"Gradle, Gradle, Gradle");
+
+//        startActivity(intent);
+        startActivityForResult(intent,REQUEST_FAVORITE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch(requestCode){
+            case REQUEST_FAVORITE:
+                // favorite song
+                if(resultCode==RESULT_OK){
+                    boolean result = data.getBooleanExtra(EXTRA_FAVORITE,false);
+                    Log.d(TAG,"is favorite? "+result);
+                }else if(resultCode==RESULT_CANCELED){
+                    // back button pressed
+                    Log.d(TAG,"canceled");
+                }
+                break;
+        }
+
     }
 
     private void downloadSongs() {

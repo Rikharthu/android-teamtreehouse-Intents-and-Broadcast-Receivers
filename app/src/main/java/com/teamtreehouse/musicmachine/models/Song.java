@@ -3,9 +3,6 @@ package com.teamtreehouse.musicmachine.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by benjakuben on 5/13/16.
- */
 public class Song implements Parcelable {
 
     private long mId;
