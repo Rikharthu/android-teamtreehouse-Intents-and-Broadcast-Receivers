@@ -1,8 +1,10 @@
 package com.teamtreehouse.musicmachine;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout mRootLayout;
 
     private PlaylistAdapter mAdapter;
+
+    private NetworkConnectionReceiver mReceiver=new NetworkConnectionReceiver();
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -77,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
         mDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                downloadSongs();
-                testIntents();
+                downloadSongs();
+//                testIntents();
             }
         });
         mPlayButton.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mBound) {
                     Intent intent = new Intent(MainActivity.this, PlayerService.class);
+                    intent.putExtra(EXTRA_SONG, Playlist.songs[0]);
                     startService(intent);
                     Message message = Message.obtain();
                     message.arg1 = 2;
@@ -200,4 +206,41 @@ public class MainActivity extends AppCompatActivity {
             mBound = false;
         }
     }
+
+    // Connect and disconnect BroadcastReceiver in lifecycle methods
+    // That way Broadcasts will be received only when app is running
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(mReceiver,filter);
+
+        // register another custom receiver
+        IntentFilter customFilter = new IntentFilter(NetworkConnectionReceiver.NOTIFY_NETWORK_CHANGE);
+        // register to local process broadcasts
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver,customFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
+        // unregister from local receivers
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+    }
+
+
+    private BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG,"onReceive()");
+            boolean isConnected = intent.getBooleanExtra(NetworkConnectionReceiver.EXTRA_IS_CONNECTED,false);
+            if(isConnected){
+                Snackbar.make(mRootLayout,"Network is connected.",Snackbar.LENGTH_LONG).show();
+            }else{
+                Snackbar.make(mRootLayout,"Network is disconnected.",Snackbar.LENGTH_LONG).show();
+            }
+        }
+    };
+
 }
