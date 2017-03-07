@@ -26,11 +26,8 @@ import android.widget.Toast;
 import com.teamtreehouse.musicmachine.adapters.PlaylistAdapter;
 import com.teamtreehouse.musicmachine.models.Song;
 
-import java.io.File;
-import java.net.URI;
-
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     public static final String EXTRA_FAVORITE = "EXTRA_FAVORITE";
     public static final String EXTRA_TITLE="EXTRA_TITLE";
@@ -52,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
+            Log.d(LOG_TAG,"onServiceConnected() - "+name);
             mBound = true;
             mServiceMessenger = new Messenger(binder);
             Message message = Message.obtain();
@@ -166,10 +164,10 @@ public class MainActivity extends AppCompatActivity {
                     Playlist.songs[position].setIsFavorite(result);
                     // notify adapter
                     mAdapter.notifyItemChanged(position);
-                    Log.d(TAG,"is favorite? "+result);
+                    Log.d(LOG_TAG,"is favorite? "+result);
                 }else if(resultCode==RESULT_CANCELED){
                     // back button pressed
-                    Log.d(TAG,"canceled");
+                    Log.d(LOG_TAG,"canceled");
                 }
                 break;
         }
@@ -233,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"onReceive()");
+            Log.d(LOG_TAG,"onReceive()");
             boolean isConnected = intent.getBooleanExtra(NetworkConnectionReceiver.EXTRA_IS_CONNECTED,false);
             if(isConnected){
                 Snackbar.make(mRootLayout,"Network is connected.",Snackbar.LENGTH_LONG).show();

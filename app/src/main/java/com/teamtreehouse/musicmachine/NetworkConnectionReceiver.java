@@ -26,7 +26,7 @@ public class NetworkConnectionReceiver extends BroadcastReceiver {
     // FIXME DOESNT WORK
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG,intent.getAction());
+        Log.i(TAG,"onReceive" + intent.getAction());
 
         ConnectivityManager cm =
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);

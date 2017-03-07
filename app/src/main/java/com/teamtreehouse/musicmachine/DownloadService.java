@@ -16,6 +16,7 @@ public class DownloadService extends Service {
         thread.setName("DownloadThread");
         thread.start();
 
+        // wait for thread's DownloadHandler to initialize
         while (thread.mHandler == null) {
 
         }
